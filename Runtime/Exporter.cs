@@ -14,14 +14,14 @@ namespace Parabox.Stl
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static string ExportToString(GameObject[] gameObjects, FileType type)
+		public static string ExportToString(GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
 		{
 			if(type == FileType.Binary)
 			{
 				return null;
 			}
 
-			Mesh[] meshes = CreateWorldSpaceMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray());
+			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace);
 			string result = null;
 
 			if(meshes != null && meshes.Length > 0)
@@ -42,9 +42,9 @@ namespace Parabox.Stl
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static bool Export(string path, GameObject[] gameObjects, FileType type)
+		public static bool Export(string path, GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
 		{
-			Mesh[] meshes = CreateWorldSpaceMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray());
+			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace);
 			bool success = false;
 
 			if(meshes != null && meshes.Length > 0)
@@ -60,9 +60,9 @@ namespace Parabox.Stl
 		}
 
 		/**
-		 * Extracts a list of mesh values with their relative transformations intact.
+		 * Extracts a list of mesh values, optionally with their relative transformations intact (default).
 		 */
-		private static Mesh[] CreateWorldSpaceMeshesWithTransforms(IList<Transform> transforms)
+		private static Mesh[] CreateMeshesWithTransforms(IList<Transform> transforms, bool useWorldSpace = true)
 		{
 			if(transforms == null || transforms.Count < 1)
 				return null;
@@ -83,7 +83,15 @@ namespace Parabox.Stl
 			{
 				GameObject go = (GameObject) GameObject.Instantiate(t.gameObject);
 				go.transform.SetParent(t.parent, false);
-				go.transform.SetParent(root.transform, true);
+
+				if (useWorldSpace)
+				{
+					go.transform.SetParent(root.transform, true);
+				}
+				else
+				{
+					go.transform.SetParent(root.transform, false);
+				}
 			}
 
 			// move root to 0,0,0 so mesh transformations are relative to origin
