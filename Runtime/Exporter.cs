@@ -9,6 +9,33 @@ namespace Parabox.Stl
 	public static class Exporter
 	{
 		/// <summary>
+		/// Export a hierarchy of GameObjects to string and return it.
+		/// </summary>
+		/// <param name="gameObjects"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		public static string ExportToString(GameObject[] gameObjects, FileType type)
+		{
+			if(type == FileType.Binary)
+			{
+				return null;
+			}
+
+			Mesh[] meshes = CreateWorldSpaceMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray());
+			string result = null;
+
+			if(meshes != null && meshes.Length > 0)
+			{
+				result = WriteString(meshes);
+			}
+
+			for(int i = 0; meshes != null && i < meshes.Length; i++)
+				Object.DestroyImmediate(meshes[i]);
+
+			return result;
+		}
+
+		/// <summary>
 		/// Export a hierarchy of GameObjects to path with file type.
 		/// </summary>
 		/// <param name="path"></param>
