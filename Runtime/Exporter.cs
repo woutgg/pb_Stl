@@ -14,15 +14,16 @@ namespace Parabox.Stl
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
 		/// <param name="useWorldSpace"></param>
+		/// <param name="recurseTransforms"></param>
 		/// <returns></returns>
-		public static string ExportToString(GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
+		public static string ExportToString(GameObject[] gameObjects, FileType type, bool useWorldSpace = true, bool recurseTransforms = true)
 		{
 			if(type == FileType.Binary)
 			{
 				return null;
 			}
 
-			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace);
+			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace, recurseTransforms);
 			string result = null;
 
 			if(meshes != null && meshes.Length > 0)
@@ -43,10 +44,11 @@ namespace Parabox.Stl
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
 		/// <param name="useWorldSpace"></param>
+		/// <param name="recurseTransforms"></param>
 		/// <returns></returns>
-		public static bool Export(string path, GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
+		public static bool Export(string path, GameObject[] gameObjects, FileType type, bool useWorldSpace = true, bool recurseTransforms = true)
 		{
-			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace);
+			Mesh[] meshes = CreateMeshesWithTransforms(gameObjects.Select(x => x.transform).ToArray(), useWorldSpace, recurseTransforms);
 			bool success = false;
 
 			if(meshes != null && meshes.Length > 0)
@@ -66,8 +68,9 @@ namespace Parabox.Stl
 		/// </summary>
 		/// <param name="transforms"></param>
 		/// <param name="useWorldSpace"></param>
+		/// <param name="recurseTransforms"></param>
 		/// <returns></returns>
-		private static Mesh[] CreateMeshesWithTransforms(IList<Transform> transforms, bool useWorldSpace = true)
+		private static Mesh[] CreateMeshesWithTransforms(IList<Transform> transforms, bool useWorldSpace = true, bool recurseTransforms = true)
 		{
 			if(transforms == null || transforms.Count < 1)
 				return null;
@@ -96,7 +99,23 @@ namespace Parabox.Stl
 
 			// create new meshes by iterating the root node and transforming vertex & normal
 			// values (ignoring all other mesh attributes since STL doesn't care about them)
-			List<MeshFilter> mfs = root.GetComponentsInChildren<MeshFilter>().Where(x => x.sharedMesh != null).ToList();
+			List<MeshFilter> mfs;
+
+			if (recurseTransforms)
+			{
+				mfs = root.GetComponentsInChildren<MeshFilter>().ToList();
+			}
+			else
+			{
+				mfs = new List<MeshFilter>();
+				foreach (Transform child in root.transform)
+				{
+					mfs.Add(child.GetComponent<MeshFilter>());
+				}
+			}
+
+			mfs = mfs.Where(x => x.sharedMesh != null).ToList();
+
 			int meshCount = mfs.Count;
 			Mesh[] meshes = new Mesh[meshCount];
 
