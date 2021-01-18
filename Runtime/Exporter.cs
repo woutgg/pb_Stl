@@ -13,6 +13,7 @@ namespace Parabox.Stl
 		/// </summary>
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
+		/// <param name="useWorldSpace"></param>
 		/// <returns></returns>
 		public static string ExportToString(GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
 		{
@@ -41,6 +42,7 @@ namespace Parabox.Stl
 		/// <param name="path"></param>
 		/// <param name="gameObjects"></param>
 		/// <param name="type"></param>
+		/// <param name="useWorldSpace"></param>
 		/// <returns></returns>
 		public static bool Export(string path, GameObject[] gameObjects, FileType type, bool useWorldSpace = true)
 		{
@@ -59,9 +61,12 @@ namespace Parabox.Stl
 			return success;
 		}
 
-		/**
-		 * Extracts a list of mesh values, optionally with their relative transformations intact (default).
-		 */
+		/// <summary>
+		/// Extract a list of mesh values, optionally with their relative transformations intact (default).
+		/// </summary>
+		/// <param name="transforms"></param>
+		/// <param name="useWorldSpace"></param>
+		/// <returns></returns>
 		private static Mesh[] CreateMeshesWithTransforms(IList<Transform> transforms, bool useWorldSpace = true)
 		{
 			if(transforms == null || transforms.Count < 1)
