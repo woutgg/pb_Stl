@@ -88,15 +88,7 @@ namespace Parabox.Stl
 			{
 				GameObject go = (GameObject) GameObject.Instantiate(t.gameObject);
 				go.transform.SetParent(t.parent, false);
-
-				if (useWorldSpace)
-				{
-					go.transform.SetParent(root.transform, true);
-				}
-				else
-				{
-					go.transform.SetParent(root.transform, false);
-				}
+				go.transform.SetParent(root.transform, useWorldSpace);
 			}
 
 			// move root to 0,0,0 so mesh transformations are relative to origin
